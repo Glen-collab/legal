@@ -20,6 +20,9 @@ APPS = [
     dict(slug="bizledger", name="BizLedger",
          tagline="Income, expenses and mileage for a small business.",
          source=HOME / "business-ledger/docs/PRIVACY.md"),
+    dict(slug="twoorthree", name="Two or Three",
+         tagline="A question at the table, pitched to who is sitting at it.",
+         source=HOME / "gathering/docs/PRIVACY.md"),
 ]
 
 def inline(text):
