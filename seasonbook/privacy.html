@@ -30,14 +30,15 @@
 <div class="wrap">
   <div class="kicker">Season Book</div>
   <h1>Privacy Policy</h1>
-  <div class="date">Last updated: August 23, 2026</div>
+  <div class="date">Last updated: September 8, 2026</div>
 
   <div class="card">
     <strong>The short version:</strong> Season Book has no accounts and no servers. Your
-    gymnast's scores and photographs stay on your iPhone and in your own iCloud, which we
-    cannot see into. The app <strong>never reads your photo library</strong> — it can only
-    add to it. Location data is stripped from every photograph it stores. We collect
-    nothing, we track nothing, and there are no ads.
+    gymnast's scores and photographs stay on your phone, and in your own iCloud (iPhone) or
+    your own Google Drive (Android) if you use the off-device copy — neither of which we can
+    see into. The app <strong>never reads your photo library</strong> on either platform.
+    Location data is stripped from every photograph it stores. We collect nothing, we track
+    nothing, and there are no ads.
   </div>
 
   <h2>Information we collect</h2>
@@ -47,16 +48,37 @@
   no crash reporting, and no third-party tracking code in the app.</p>
 
   <h2>Where your content is stored</h2>
-  <p>Gymnasts, meets, scores, teams and photographs are stored on your iPhone and sync
-  through your own iCloud account so they appear on your other Apple devices. This uses
-  Apple's CloudKit private database. It is your iCloud account, it counts against your
-  iCloud storage, and <strong>we have no access to it</strong>. Apple's handling of that
-  data is covered by <a href="https://www.apple.com/legal/privacy/">Apple's Privacy
-  Policy</a>.</p>
+  <p>Gymnasts, meets, scores, teams and photographs are stored on your own phone. What
+  happens beyond that differs by platform, and the difference is worth reading.</p>
+
+  <h3>On iPhone</h3>
+  <p>Your content syncs through your own iCloud account so it appears on your other Apple
+  devices. This uses Apple's CloudKit private database. It is your iCloud account, it counts
+  against your iCloud storage, and <strong>we have no access to it</strong>. Apple's
+  handling of that data is covered by
+  <a href="https://www.apple.com/legal/privacy/">Apple's Privacy Policy</a>.</p>
   <p>If iCloud is unavailable — you are signed out, or out of space — the app keeps working
-  and stores everything locally on the device instead. There is no setting to turn sync off;
-  signing out of iCloud, or turning this app off under iCloud in iOS Settings, has that
-  effect.</p>
+  and stores everything locally instead. There is no setting to turn sync off; signing out
+  of iCloud, or turning this app off under iCloud in iOS Settings, has that effect.</p>
+
+  <h3>On Android</h3>
+  <p><strong>The Android version has no sync.</strong> It offers an optional
+  <em>backup</em> to your own Google Drive, and it is off until you turn it on.</p>
+  <p>When you turn it on, Season Book asks for a single Google permission:
+  <code>drive.appdata</code>. This is the narrowest access Google Drive offers. It allows an
+  app to read and write only files it created itself, inside a hidden folder that does not
+  appear among your Drive files and that no other app can open.
+  <strong>Season Book cannot see, list, or touch anything else in your Drive</strong> — not
+  your documents, not your photos, not files shared with you. We are not asking for access
+  to your Drive; we are asking for a private cupboard inside it.</p>
+  <p>The backup is one file holding her scores and photographs. It is stored in your own
+  Google account, counts against your own Google storage, and <strong>we have no access to
+  it</strong>. Google's handling of that data is covered by
+  <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>. With the backup
+  switched off, everything stays on the phone and nothing leaves it.</p>
+  <p>Android can also <em>import</em> a backup exported from the iPhone app. You choose the
+  file; the app reads it and adds what is in it. Nothing is uploaded and nothing is sent to
+  us.</p>
 
   <h2>Photographs of children</h2>
   <p>This app exists to keep pictures of somebody's child next to her scores, so this
@@ -78,23 +100,31 @@
   </ul>
 
   <h2>Camera and photo library</h2>
-  <p>Season Book asks for two permissions, and only when you tap the control that needs one:</p>
+  <p><strong>On Android, Season Book asks for no permissions at all.</strong> It holds no
+  camera permission and no access to your gallery. Taking a picture hands the job to
+  whichever camera app you already use; choosing an existing one goes through Android's own
+  photo picker. Both hand back only the images you picked. The only things the Android app
+  declares are internet access and the ability to see whether there is a connection, used
+  by the Google Drive backup and by casting to a television.</p>
+  <p>On iPhone, Season Book asks for two permissions, and only when you tap the control that
+  needs one:</p>
   <ul>
     <li><strong>Camera</strong> — to photograph your gymnast at a meet.</li>
     <li><strong>Add to photo library</strong> — used only by "save this meet's photos to an
     album", so you can run Apple's own slideshow and put it on a television.</li>
   </ul>
-  <p><strong>The app cannot read your photo library.</strong> That is not a promise about
-  our intentions; it is what the app is capable of. Adding photographs you have already
-  taken uses Apple's own photo picker, which runs outside the app and hands over only the
-  images you pick — the app is never granted access to the library itself, and it does not
-  ask for it.</p>
+  <p><strong>The app cannot read your photo library</strong>, on either platform. That is
+  not a promise about our intentions; it is what the app is capable of. Adding photographs
+  you have already taken uses the operating system's own photo picker — Apple's on iPhone,
+  Android's on Android — which runs outside the app and hands over only the images you pick.
+  The app is never granted access to the library itself, and it does not ask for it.</p>
 
   <h2>Other people's children</h2>
   <p>If you bring a team into a meet, or photograph a group, you are handling other people's
   children — their names, their scores, and their faces.</p>
-  <p>The app treats them exactly like your own: stored on your device and in your iCloud,
-  never sent to us, never published. But two things are yours to manage rather than ours:</p>
+  <p>The app treats them exactly like your own: stored on your device, and in your own
+  iCloud or Google Drive if you use that, never sent to us, never published. But two things
+  are yours to manage rather than ours:</p>
   <ul>
     <li>A season book is a shareable file, and it carries whatever photographs and names are
     in it. Before sending one to anybody outside your own family, consider who else appears
@@ -105,16 +135,28 @@
   </ul>
 
   <h2>Sharing a season book, and exporting</h2>
-  <p>Season Book can turn a season into a PDF and can export everything as a zip of
-  spreadsheets, web pages and plain photographs. Both are created on your iPhone and go
-  wherever you send them using the standard iOS share sheet. Nothing is uploaded, published,
-  or hosted by us, and no link to your content exists on the internet. Once you send a file
-  to someone, what happens to it is between you and them.</p>
+  <p>Season Book can turn a season, or a whole career, into a PDF; it can send a single
+  meet as a picture; and it can export everything as an archive of spreadsheets, web pages
+  and plain photographs. All of these are created on your own phone and go wherever you send
+  them using the standard share sheet — iOS's on iPhone, Android's on Android. Nothing is
+  uploaded, published, or hosted by us, and no link to your content exists on the internet.
+  Once you send a file to someone, what happens to it is between you and them.</p>
 
   <h2>Network use</h2>
-  <p>Season Book makes no network requests of its own and works fully offline. The only
-  network traffic associated with the app is Apple's own iCloud sync, between your device
-  and your iCloud account.</p>
+  <p>Season Book has no server of ours to talk to and works fully offline on both
+  platforms.</p>
+  <p><strong>On iPhone</strong>, the only network traffic is Apple's own iCloud sync,
+  between your device and your iCloud account.</p>
+  <p><strong>On Android</strong>, there are two, and only if you use them: the Google Drive
+  backup, between your phone and your own Google account; and casting to a television.</p>
+  <p>Casting deserves a plain description, because it is the one place photographs travel.
+  When you put a season on a Chromecast, <strong>the photographs go from your phone to the
+  television over your own home network</strong> — sent directly along the Cast connection,
+  the same way the scores are. They are not uploaded anywhere, they are not stored on a
+  server, and they are never given a web address. The page the television displays is a
+  fixed page of ours that holds no data of its own and fetches nothing; everything on screen
+  arrives from the phone in the room. This is deliberate: a page that could fetch your
+  daughter's photographs would be a page anybody could fetch them from.</p>
 
   <h2>Deleting your data</h2>
   <p>There is no account to delete, because there is no account. Everything is removable
@@ -123,10 +165,21 @@
     <li>A gymnast — her scores and photographs go with her.</li>
     <li>A meet, a team, or a single photograph.</li>
   </ul>
-  <p>Deletions propagate to your other devices and to your iCloud account. "Export
-  Everything" will give you a complete archive first if you want to keep a copy. Deleting the
-  app from your iPhone removes the on-device copy; you can remove the remaining iCloud copy
-  in iOS Settings under your name → iCloud → Manage Account Storage.</p>
+  <p>Android also has Settings → <strong>Delete All My Data</strong>, which removes every
+  gymnast, meet, score and photograph from the device in one step. Export first if you want
+  to keep a copy.</p>
+  <p><strong>iPhone:</strong> deletions propagate to your other devices and to your iCloud
+  account. "Export Everything" will give you a complete archive first if you want one.
+  Deleting the app removes the on-device copy; you can remove the remaining iCloud copy in
+  iOS Settings under your name → iCloud → Manage Account Storage.</p>
+  <p><strong>Android:</strong> if the backup is switched on, the copy in your Google Drive
+  is replaced by an empty one at the next backup, and the app says so on the delete button
+  before you press it. If you want that copy gone immediately rather than at the next
+  backup, use Settings → <strong>Stop backing up</strong> and choose <em>Stop and Delete
+  Backup</em>. You can also revoke Season Book's access entirely at
+  <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, or
+  delete the hidden data from drive.google.com → Settings → Manage apps. Deleting the app
+  from your phone removes the on-device copy but leaves whatever is in Drive.</p>
 
   <h2>Children using the app</h2>
   <p>Season Book is a record-keeping tool for a parent or coach, not an app for children to
@@ -143,7 +196,7 @@
   <p>Questions about this policy or about Season Book:
   <a href="mailto:wisco.barbell@gmail.com">wisco.barbell@gmail.com</a></p>
 
-  <footer>Season Book — a gymnast's season, kept.</footer>
+  <footer>Season Book — a gymnast's season, kept. Available for iPhone and Android.</footer>
 </div>
 </body>
 </html>
