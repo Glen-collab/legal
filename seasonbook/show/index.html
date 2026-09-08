@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Season Book — Season Show</title>
+<style>
+  /*
+    A television, seen from a sofa. Everything here is sized for a room rather than a
+    screen: nothing under about 2vh, generous letter-spacing, and a black ground so a
+    photograph is the brightest thing on the wall.
+  */
+  :root{
+    --ink:#ffffff; --dim:#9aa4b2; --line:#2a3038;
+    --gold:#FFD14A; --silver:#DBE3EE; --bronze:#FDB85A;
+    --navy:#0b1220;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:#000;color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden;}
+  #stage{position:relative;width:100vw;height:100vh;}
+
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;
+    justify-content:center;padding:6vh 8vw;opacity:0;transition:opacity .6s ease;}
+  .slide.on{opacity:1;}
+
+  .eyebrow{font-size:1.9vh;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);}
+  h1{font-size:9vh;line-height:1.02;font-weight:700;margin:1.4vh 0;}
+  .season{font-size:3.4vh;color:var(--gold);letter-spacing:.04em;}
+
+  /* Title slide: her photograph fills the frame, the words sit over a gradient. */
+  .hero{position:absolute;inset:0;background-size:cover;background-position:center;}
+  .scrim{position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.15) 100%);}
+  .title-text{position:relative;}
+
+  /* Meet card */
+  .meet-name{font-size:6vh;font-weight:700;line-height:1.05;}
+  .meet-meta{font-size:2.4vh;color:var(--dim);margin-top:1vh;letter-spacing:.02em;}
+  table{width:100%;border-collapse:collapse;margin-top:4vh;}
+  td{padding:1.5vh 0;border-bottom:1px solid var(--line);font-size:4vh;}
+  td.app{color:var(--ink);}
+  td.val{text-align:right;font-variant-numeric:tabular-nums;
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+  td.place{width:12vw;text-align:right;font-size:2.6vh;font-weight:700;}
+  .aa{display:flex;justify-content:space-between;align-items:baseline;margin-top:3.5vh;}
+  .aa .label{font-size:3.4vh;font-weight:700;}
+  .aa .value{font-size:6vh;font-weight:700;color:var(--gold);
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+  .partial{font-size:2.1vh;color:var(--dim);margin-top:1vh;}
+
+  /* Photo slide: the picture is the point, the caption gets out of the way. */
+  .photo{position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;
+    background-position:center;}
+  .caption{position:absolute;left:0;right:0;bottom:0;padding:4vh 8vw;
+    background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);
+    font-size:3.2vh;}
+  .caption .where{display:block;font-size:2vh;color:var(--dim);letter-spacing:.16em;
+    text-transform:uppercase;margin-bottom:.6vh;}
+
+  /* Season card */
+  .stats{display:flex;gap:6vw;margin-top:4vh;flex-wrap:wrap;}
+  .stat .figure{display:block;font-size:7vh;font-weight:700;
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+  .stat .label{display:block;font-size:1.9vh;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--dim);}
+  .medals{display:flex;gap:3vw;margin-top:4vh;}
+  .medal{display:flex;align-items:center;gap:1.2vw;font-size:3.4vh;font-weight:700;}
+  .disc{width:3.4vh;height:3.4vh;border-radius:50%;}
+  .g{background:var(--gold);} .s{background:var(--silver);} .b{background:var(--bronze);}
+  .bests{margin-top:4vh;font-size:2.8vh;}
+  .bests div{display:flex;justify-content:space-between;padding:1vh 0;
+    border-bottom:1px solid var(--line);}
+  .bests .lvl{color:var(--dim);font-size:2.2vh;}
+
+  #idle{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:2vh;text-align:center;padding:0 10vw;}
+  #idle h2{font-size:5vh;font-weight:700;}
+  #idle p{font-size:2.6vh;color:var(--dim);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="idle">
+    <h2>Season Book</h2>
+    <p>Pick a gymnast and a season on your phone, and her season will play here.</p>
+  </div>
+</div>
+
+<script>
+/*
+  The receiver.
+
+  It holds no data of its own and fetches nothing. Everything — scores, captions and the
+  photographs themselves — arrives from the phone over the Cast channel, on the family's
+  own Wi-Fi. Nothing is uploaded anywhere and no photograph is ever reachable by a URL,
+  which is the whole reason this does not simply read from Drive: a receiver is a public
+  web page and could only read Drive files that were public too.
+
+  Photographs arrive base64-encoded and chunked, because a Cast message caps out around
+  64KB and a published photo is a couple of hundred. The sender streams them while the
+  show is already running, so the first slide appears immediately rather than after the
+  whole season has transferred.
+*/
+const NAMESPACE = 'urn:x-cast:com.wisconsinbarbell.seasonbook';
+
+const stage = document.getElementById('stage');
+const idle = document.getElementById('idle');
+
+let slides = [];
+let index = 0;
+let timer = null;
+const photos = new Map();      // photoId -> data URI
+const pending = new Map();     // photoId -> array of chunks
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => (
+  {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function score(v){ return (v === null || v === undefined) ? '—' : Number(v).toFixed(3); }
+
+function placeLabel(p){
+  if (!p) return '';
+  if (p === 1) return '1st'; if (p === 2) return '2nd'; if (p === 3) return '3rd';
+  return p + 'th';
+}
+function placeColour(p){
+  return p === 1 ? 'var(--gold)' : p === 2 ? 'var(--silver)' : p === 3 ? 'var(--bronze)' : 'var(--dim)';
+}
+
+function render(slide){
+  if (slide.type === 'title') {
+    const photo = photos.get(slide.photoId);
+    return `<div class="slide">
+      ${photo ? `<div class="hero" style="background-image:url('${photo}')"></div><div class="scrim"></div>` : ''}
+      <div class="title-text">
+        <p class="eyebrow">${esc(slide.discipline || '')} Gymnastics</p>
+        <h1>${esc(slide.name)}</h1>
+        <p class="season">${esc(slide.season)}</p>
+      </div>
+    </div>`;
+  }
+
+  if (slide.type === 'meet') {
+    const rows = (slide.rows || []).map(r => `
+      <tr>
+        <td class="app">${esc(r.apparatus)}</td>
+        <td class="place" style="color:${placeColour(r.place)}">${esc(placeLabel(r.place))}</td>
+        <td class="val">${score(r.value)}</td>
+      </tr>`).join('');
+    return `<div class="slide">
+      <div class="meet-name">${esc(slide.meetName)}</div>
+      <div class="meet-meta">${esc(slide.date || '')}${slide.level ? ' · ' + esc(slide.level) : ''}</div>
+      <table>${rows}</table>
+      <div class="aa">
+        <span class="label">All-around${slide.allAroundPlace ? ' · ' + esc(placeLabel(slide.allAroundPlace)) : ''}</span>
+        <span class="value">${score(slide.allAround)}</span>
+      </div>
+      ${slide.partial ? '<p class="partial">Not every apparatus was scored.</p>' : ''}
+    </div>`;
+  }
+
+  if (slide.type === 'photo') {
+    const photo = photos.get(slide.photoId);
+    return `<div class="slide">
+      ${photo ? `<div class="photo" style="background-image:url('${photo}')"></div>` : ''}
+      ${slide.caption ? `<div class="caption"><span class="where">${esc(slide.meetName || '')}</span>${esc(slide.caption)}</div>` : ''}
+    </div>`;
+  }
+
+  if (slide.type === 'season') {
+    const bests = (slide.bests || []).map(b => `
+      <div><span>${esc(b.apparatus)} <span class="lvl">${esc(b.level || '')}</span></span>
+      <span class="val">${score(b.value)}</span></div>`).join('');
+    const medal = (n, cls, word) => n > 0
+      ? `<div class="medal"><span class="disc ${cls}"></span>${n} ${word}</div>` : '';
+    return `<div class="slide">
+      <p class="eyebrow">The season</p>
+      <h1>${esc(slide.season)}</h1>
+      <div class="stats">
+        <div class="stat"><span class="figure">${slide.meetCount}</span><span class="label">meets</span></div>
+        ${slide.bestAllAround != null
+          ? `<div class="stat"><span class="figure">${score(slide.bestAllAround)}</span><span class="label">best all-around</span></div>` : ''}
+      </div>
+      <div class="medals">
+        ${medal(slide.gold, 'g', 'gold')}${medal(slide.silver, 's', 'silver')}${medal(slide.bronze, 'b', 'bronze')}
+      </div>
+      <div class="bests">${bests}</div>
+    </div>`;
+  }
+  return '<div class="slide"></div>';
+}
+
+function show(i){
+  if (!slides.length) return;
+  index = ((i % slides.length) + slides.length) % slides.length;
+  const slide = slides[index];
+
+  idle.style.display = 'none';
+  stage.querySelectorAll('.slide').forEach(el => el.remove());
+  stage.insertAdjacentHTML('beforeend', render(slide));
+  const el = stage.querySelector('.slide');
+  requestAnimationFrame(() => el.classList.add('on'));
+
+  clearTimeout(timer);
+  // Durations come from the sender, which already worked them out: scores need reading,
+  // a photograph is taken in at a glance and outstays its welcome quickly.
+  timer = setTimeout(() => show(index + 1), (slide.duration || 8) * 1000);
+}
+
+function start(payload){
+  slides = payload.slides || [];
+  if (!slides.length) { idle.style.display = 'flex'; return; }
+  show(0);
+}
+
+function receivePhotoChunk(msg){
+  const list = pending.get(msg.photoId) || [];
+  list[msg.chunk] = msg.data;
+  pending.set(msg.photoId, list);
+  if (list.filter(Boolean).length === msg.chunks) {
+    photos.set(msg.photoId, 'data:image/jpeg;base64,' + list.join(''));
+    pending.delete(msg.photoId);
+    // If the slide currently on screen was waiting for this photograph, redraw it in
+    // place rather than making the room wait for the next one.
+    const slide = slides[index];
+    if (slide && slide.photoId === msg.photoId) {
+      const el = stage.querySelector('.slide');
+      if (el) { el.remove(); stage.insertAdjacentHTML('beforeend', render(slide));
+                requestAnimationFrame(() => stage.querySelector('.slide').classList.add('on')); }
+    }
+  }
+}
+
+function handle(message){
+  switch (message.kind) {
+    case 'show':  start(message); break;
+    case 'photo': receivePhotoChunk(message); break;
+    case 'stop':  clearTimeout(timer); slides = [];
+                  stage.querySelectorAll('.slide').forEach(el => el.remove());
+                  idle.style.display = 'flex'; break;
+  }
+}
+
+// ---- Cast, when a Chromecast is running this ----
+if (window.cast && cast.framework) {
+  const context = cast.framework.CastReceiverContext.getInstance();
+  context.addCustomMessageListener(NAMESPACE, e => handle(e.data));
+  const options = new cast.framework.CastReceiverOptions();
+  // A season show is not media playback; without this the receiver would close itself
+  // the moment no video was playing.
+  options.disableIdleTimeout = true;
+  context.start(options);
+}
+
+// ---- Demo, so the show can be checked in a browser with no Chromecast in the room ----
+const demoParam = new URLSearchParams(location.search).get('demo');
+if (demoParam !== null) {
+  const file = (demoParam === '' || demoParam === '1') ? 'demo.json' : demoParam;
+  fetch(file).then(r => r.json()).then(data => {
+    (data.photos || []).forEach(p => photos.set(p.id, p.data));
+    handle(data.show);
+  });
+}
+</script>
+</body>
+</html>
